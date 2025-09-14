@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import filedialog
 import pandas as pd
 
-# Привет
-
 # Создаем скрытое главное окно
 root = tk.Tk()
 root.withdraw()
@@ -19,3 +17,6 @@ if file_path:
     # DataFrame df теперь содержит данные из файла
 else:
     print("Файл не выбран.")
+
+# Закрываем главное окно
+root.destroy()
