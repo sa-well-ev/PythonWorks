@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import filedialog
 import pandas as pd
 
+# Привет
+
 # Создаем скрытое главное окно
 root = tk.Tk()
 root.withdraw()
