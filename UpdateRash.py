@@ -24,11 +24,19 @@ root.destroy()
 ################################################
 
 # Загружаем выбранный Excel
-df = pd.read_excel(file_path, sheet_name="Сборная")
+df = pd.read_excel(file_path, sheet_name="Сборная",
+                   usecols=['Плата', 'Дата', 'Сумма', 'Категория2', 'Источник', 'Комментарий'],
+                   dtype={
+                       'Плата': int,
+                       'Сумма': float,
+                       'Категория2': str, 
+                       'Источник': str, 
+                       'Комментарий': str
+                   }                   
+)
 
-# Оставляем нужные столбцы и переименовываем как в БД
-df = df[['Плата', 'Дата', 'Сумма', 'Категория2', 'Источник']]
-df.columns=['payment', 'date', 'amount', 'category', 'source']
+# Переименовываем как в БД
+df.columns=['payment', 'date', 'amount', 'category', 'source', 'comment']
 # Убираем подъёбку с датами отсекая миллисекунды
 df.date = df.date.dt.floor('s')
 #######################################
@@ -41,8 +49,13 @@ conn = sqlite3.connect('./data/finance.lite')
 # Максимальная дата в таблице
 v_max_date = pd.read_sql('SELECT MAX(date) FROM trans_all', conn).iloc[0, 0]
 
+# Если в таблице есть записи, то отбираем только новые, иначе загружаем всё
+if pd.notna(v_max_date):
+    df_new = df.loc[df.date > v_max_date]
+else:
+    df_new = df
+
 # Добавление записей в существующую таблицу trans_all базы данных finance.lite
-df_new = df.loc[df.date > v_max_date]
 df_new.to_sql('trans_all', conn, if_exists='append', index=False)
 
 # закрытие соединения с базой данных
